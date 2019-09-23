@@ -1,0 +1,6 @@
+.line {
+    overflow: scroll;
+    float: left;
+    height: 200px;
+    width: 80%;
+}

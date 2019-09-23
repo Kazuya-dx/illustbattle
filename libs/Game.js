@@ -30,6 +30,12 @@ module.exports = class Game {
                 }
             });
 
+            // メッセージの処理
+            socket.on('msg_to_server', (msg) => {
+                io.to(room).emit('msg_to_client', {msg: msg, name: name});
+                console.log('%s: %s', name, msg);
+            });
+
         });
     }
 };
