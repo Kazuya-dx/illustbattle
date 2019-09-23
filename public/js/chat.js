@@ -17,5 +17,5 @@ $('#msgForm').keypress(function (e) {
 });
 
 socket.on('msg_to_client', (data) => {
-    $('.line').append('<div>'+data.name+': '+data.msg+'</div>');
+    $('.line').prepend('<div>'+data.name+': '+data.msg+'</div>');
 });

@@ -1,3 +1,9 @@
+.title {
+    width: 100%;
+    background-color: black;
+    color: white;
+}
+
 .line {
     overflow: scroll;
     float: left;
