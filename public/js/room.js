@@ -9,3 +9,15 @@ function joinUser(name) {
     let roomId = 1;
     socket.emit('join_user', { room: roomId, name: name});
 };
+
+// 部屋ごとにゲームスタート
+socket.on('enter_the_game', () => {
+    socket.emit('enter_the_game', {});
+});
+
+// 切断にてゲーム中断した時の処理
+socket.on('refresh', () => {
+    setTimeout( () => {
+        window.location.href = 'http://127.0.0.1:3000/disconnect/';
+    });
+});
