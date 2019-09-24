@@ -19,6 +19,7 @@ module.exports = class Game {
                 room = data.room;
                 name = data.name;
                 socket.join(room);
+                io.to(room).emit('connected_msg', {msg: name + 'さん が Room'+ room +' に入室しました。'});
                 console.log('%s が Room%s に入室しました', name, room);
             });
 
@@ -27,6 +28,7 @@ module.exports = class Game {
                 console.log('disconnect: socket.id = %s', socket.id);
                 if (name != '') {
                     console.log('%s が Room%s を退室しました', name, room);
+                    io.to(room).emit('connected_msg', {msg: name + 'さん が Room'+ room +' を退室しました。'});
                 }
             });
 
