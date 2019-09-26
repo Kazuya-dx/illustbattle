@@ -8,14 +8,14 @@ module.exports = class Game {
         // 接続時の処理
         io.on('connection', (socket) => {
             let room = '';
-            let name = '';
+            let client = {id: '', name: ''};
             let game_flag = 0;
 
             console.log('connection: socket.id = %s', socket.id);
             // ゲーム開始の処理
             socket.on('enter_the_game', () => {
                 console.log('enter_the_game: socket.id = %s', socket.id);
-                const players = Object.keys(io.sockets.adapter.rooms[room].sockets);
+                const players = io.sockets.adapter.rooms[room].clients;
                 const battle = new Battle(players);
                 game_flag = 1;
             });
@@ -23,11 +23,21 @@ module.exports = class Game {
             // 入室時の処理
             socket.on('join_user', (data) => {
                 room = data.room;
-                name = data.name;
+                client.name = data.name;
+                client.id = socket.id;
                 socket.join(room);
-                io.to(room).emit('connected_msg', {msg: name + 'さん が Room'+ room +' に入室しました。'});
-                console.log('%s が Room%s に入室しました', name, room);
-                console.log(io.sockets.adapter.rooms[room].sockets);
+                io.to(room).emit('connected_msg', {msg: client.name + 'さん が Room'+ room +' に入室しました。'});
+                console.log('%s が Room%s に入室しました', client.name, room);
+
+                if (io.sockets.adapter.rooms[room].length === 1) {
+                    io.sockets.adapter.rooms[room].clients = [];
+                    io.sockets.adapter.rooms[room].clients.push(client);
+                    console.log(io.sockets.adapter.rooms[room]);
+                }
+                else {
+                    io.sockets.adapter.rooms[room].clients.push(client);
+                    console.log(io.sockets.adapter.rooms[room]);
+                }
 
                 // 部屋の人数が3人になった時、ゲームスタート
                 if (io.sockets.adapter.rooms[room].length === 3) {
@@ -41,10 +51,18 @@ module.exports = class Game {
             socket.on('disconnect', () => {
                 console.log('disconnect: socket.id = %s', socket.id);
                 console.log('room: %s', room);
-                if (name != '') {
-                    console.log('%s が Room%s を退室しました', name, room);
-                    io.to(room).emit('connected_msg', {msg: name + 'さん が Room'+ room +' を退室しました。'});
+                if (client.name != '') {
+                    console.log('%s が Room%s を退室しました', client.name, room);
+                    io.to(room).emit('connected_msg', {msg: client.name + 'さん が Room'+ room +' を退室しました。'});
                     socket.leave(room);
+
+                    if (typeof io.sockets.adapter.rooms[room] === "undefined") {}
+                    else {
+                        let idx = io.sockets.adapter.rooms[room].clients.indexOf(client);
+                        if (idx >= 0) {
+                            io.sockets.adapter.rooms[room].clients.splice(idx, 1);
+                        }
+                    }
                 }
 
                 if (game_flag === 1) {
@@ -56,8 +74,8 @@ module.exports = class Game {
 
             // メッセージの処理
             socket.on('msg_to_server', (msg) => {
-                io.to(room).emit('msg_to_client', {msg: msg, name: name});
-                console.log('%s: %s', name, msg);
+                io.to(room).emit('msg_to_client', {msg: msg, name: client.name});
+                console.log('%s: %s', client.name, msg);
             });
         });
     }

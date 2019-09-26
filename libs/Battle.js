@@ -1,9 +1,9 @@
 module.exports = class Battle {
-    constructor(players) {
-        this.p1 = players[0];
-        this.p2 = players[1];
-        this.p3 = players[2];
-        console.log(players);
+    constructor(clients) {
+        this.p1 = clients[0];
+        this.p2 = clients[1];
+        this.p3 = clients[2];
+        console.log(clients);
     }
 
 
