@@ -1,3 +1,5 @@
+const Battle =require('./Battle.js');
+
 module.exports = class Game {
     start(io) {
         // グローバル変数
@@ -11,8 +13,10 @@ module.exports = class Game {
 
             console.log('connection: socket.id = %s', socket.id);
             // ゲーム開始の処理
-            socket.on('enter_the_game', (socket) => {
+            socket.on('enter_the_game', () => {
                 console.log('enter_the_game: socket.id = %s', socket.id);
+                const players = Object.keys(io.sockets.adapter.rooms[room].sockets);
+                const battle = new Battle(players);
                 game_flag = 1;
             });
 
@@ -23,7 +27,7 @@ module.exports = class Game {
                 socket.join(room);
                 io.to(room).emit('connected_msg', {msg: name + 'さん が Room'+ room +' に入室しました。'});
                 console.log('%s が Room%s に入室しました', name, room);
-                console.log(io.sockets.adapter.rooms[room].length);
+                console.log(io.sockets.adapter.rooms[room].sockets);
 
                 // 部屋の人数が3人になった時、ゲームスタート
                 if (io.sockets.adapter.rooms[room].length === 3) {
