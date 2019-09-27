@@ -16,7 +16,16 @@ module.exports = class Game {
             socket.on('enter_the_game', () => {
                 console.log('enter_the_game: socket.id = %s', socket.id);
                 const players = io.sockets.adapter.rooms[room].clients;
-                const battle = new Battle(players);
+
+                // バトルクラスの作成
+                if (typeof io.sockets.adapter.rooms[room].battle === 'undefined') {
+                    io.sockets.adapter.rooms[room].battle = new Battle(players, room);
+                    io.sockets.adapter.rooms[room].battle.getTheme();
+                    console.log(io.sockets.adapter.rooms[room]);
+                }
+
+                io.sockets.adapter.rooms[room].battle.start(io, socket);
+
                 game_flag = 1;
             });
 
@@ -30,8 +39,10 @@ module.exports = class Game {
                 console.log('%s が Room%s に入室しました', client.name, room);
 
                 if (io.sockets.adapter.rooms[room].length === 1) {
+                    // 1つの部屋のクライアント情報を追加
                     io.sockets.adapter.rooms[room].clients = [];
                     io.sockets.adapter.rooms[room].clients.push(client);
+
                     console.log(io.sockets.adapter.rooms[room]);
                 }
                 else {
