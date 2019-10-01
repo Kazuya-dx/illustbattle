@@ -12,4 +12,15 @@ socket.on('game_msg', (msg) => {
 
 socket.on('next_turn_to_client', () => {
     socket.emit('next_turn_to_server', {});
-})
+});
+
+// ゲーム終了時の処理
+socket.on('game_over_to_client', () => {
+    socket.emit('game_over_to_server', {});
+});
+
+socket.on('game_over', () => {
+    setTimeout( () => {
+        window.location.href = 'http://127.0.0.1:3000/result/';
+    });
+});

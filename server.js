@@ -26,6 +26,9 @@ app.use(express.static(__dirname + '/public'));
 app.get('/disconnect', (req, res) => {
     res.sendFile(__dirname + '/public/disconnect.html');
 });
+app.get('/result', (req, res) => {
+    res.sendFile(__dirname + '/public/result.html');
+});
 
 // サーバーの起動
 server.listen(PORT_NO, () => {

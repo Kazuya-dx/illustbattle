@@ -74,14 +74,21 @@ module.exports = class Game {
                         if (idx >= 0) {
                             io.sockets.adapter.rooms[room].clients.splice(idx, 1);
                         }
+
+                        if (typeof io.sockets.adapter.rooms[room].battle === "undefined") {}
+                        else {
+                            console.log('接続が切断されました。トップ画面に戻ります。');
+                            io.to(room).emit('refresh', {});
+                        }
                     }
                 }
-
+                /*
                 if (game_flag === 1) {
                     console.log('接続が切断されました。トップ画面に戻ります。');
                     io.to(room).emit('refresh', {});
                     game_flag = 0;
                 }
+                */
             });
 
             // メッセージの処理
