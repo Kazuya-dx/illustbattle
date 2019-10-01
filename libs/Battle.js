@@ -13,16 +13,16 @@ module.exports = class Battle {
         this.p1points = 0;
         this.p2points = 0;
         this.p3points = 0;
-        this.turn = this.p1;
         this.drawer = this.p1;
-        this.turn = 6;
+        this.turn = 1;
+        this.endturn = 6;
         this.gametheme = [];
     }
 
     getTheme() {
         const tmp = [];
         while (true) {
-            if (tmp.length === this.turn) {
+            if (tmp.length === this.endturn) {
                 this.gametheme = tmp;
                 return 0;
             }
@@ -33,7 +33,7 @@ module.exports = class Battle {
         };
     };
 
-    calcPoints(socket) {
+    calcPoints(io, socket) {
         if (socket.id === this.p1.id) {
             this.p1points += 100;
             if (this.drawer.id === this.p2.id) this.p2points += 100;
@@ -51,18 +51,47 @@ module.exports = class Battle {
         }
         // デバッグログ
         console.log('p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points);
+        io.to(this.room).emit('game_msg', '<div>p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points+'</div>');
+    }
+
+    changeDrawer() {
+        if (this.drawer === this.p1) this.drawer = this.p2;
+        else if (this.drawer === this.p2) this.drawer = this.p3;
+        else this.drawer = this.p1;
+        this.turn++;
     }
 
     start(io, socket) {
         if (socket.id === this.drawer.id) {
-            io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[0], drawer: this.drawer});
-            console.log('お題は '+this.gametheme[0]+ 'です。');
+            // 現在のターン・描き手を知らせるメッセージ
+            io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+this.turn+'ターン目 -----</font></div>');
+            io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
+            // 描き手のみにお題を伝えるメッセージ
+            io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
+            console.log('お題は '+this.gametheme[this.turn]+ 'です。');
         }
 
         socket.on('msg_to_server', (msg) => {
-            if (msg === this.gametheme[0] && socket.id !== this.drawer.id) {
+            if (msg === this.gametheme[this.turn] && socket.id !== this.drawer.id) {
+                io.to(this.room).emit('game_msg', '<div><b>正解！</b></div>');
                 console.log('正解！');
-                this.calcPoints(socket);
+                this.calcPoints(io, socket);
+                this.changeDrawer();
+                io.to(this.room).emit('next_turn_to_client', {});
+            }
+        });
+
+        socket.on('next_turn_to_server', (data) => {
+            if (this.turn === this.endturn) {
+                console.log('==========ゲーム終了==========');
+            }
+            if (socket.id === this.drawer.id) {
+                // 現在のターン・描き手を知らせるメッセージ
+                io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+this.turn+'ターン目 -----</font></div>');
+                io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
+                // 描き手のみにお題を伝えるメッセージ
+                io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
+                console.log('お題は '+this.gametheme[this.turn]+ 'です。');
             }
         });
     }

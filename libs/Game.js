@@ -21,10 +21,10 @@ module.exports = class Game {
                 if (typeof io.sockets.adapter.rooms[room].battle === 'undefined') {
                     io.sockets.adapter.rooms[room].battle = new Battle(players, room);
                     io.sockets.adapter.rooms[room].battle.getTheme();
-                    console.log(io.sockets.adapter.rooms[room]);
                 }
 
                 io.sockets.adapter.rooms[room].battle.start(io, socket);
+                console.log(io.sockets.adapter.rooms[room]);
 
                 game_flag = 1;
             });
@@ -54,7 +54,8 @@ module.exports = class Game {
                 if (io.sockets.adapter.rooms[room].length === 3) {
                     console.log('GAME START');
                     io.to(room).emit('enter_the_game', {});
-                    io.to(room).emit('connected_msg', {msg: 'GAME START'});
+                    io.to(room).emit('clear_msg', {});
+                    io.to(room).emit('connected_msg', {msg: '<br><font size="4"><b>GAME START</b></font>'});
                 }
             });
 

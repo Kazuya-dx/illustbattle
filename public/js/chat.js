@@ -25,3 +25,7 @@ socket.on('connected_msg', (data) => {
     $('.line').append('<div>'+data.msg+'</div>');
     $('.line').animate({ scrollTop: $('.line')[0].scrollHeight }, 'fast');
 });
+
+socket.on('clear_msg', () => {
+    $('.line').children().remove();
+});
