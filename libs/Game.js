@@ -4,12 +4,13 @@ module.exports = class Game {
     start(io) {
         // グローバル変数
         let iTimeLast = Date.now();
+        let r_num = 0;
+        const rooms = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
         // 接続時の処理
         io.on('connection', (socket) => {
             let room = '';
             let client = {id: '', name: ''};
-            let game_flag = 0;
 
             console.log('connection: socket.id = %s', socket.id);
             // ゲーム開始の処理
@@ -25,13 +26,11 @@ module.exports = class Game {
 
                 io.sockets.adapter.rooms[room].battle.start(io, socket);
                 console.log(io.sockets.adapter.rooms[room]);
-
-                game_flag = 1;
             });
 
             // 入室時の処理
             socket.on('join_user', (data) => {
-                room = data.room;
+                room = rooms[r_num];
                 client.name = data.name;
                 client.id = socket.id;
                 socket.join(room);
@@ -56,6 +55,8 @@ module.exports = class Game {
                     io.to(room).emit('enter_the_game', {});
                     io.to(room).emit('clear_msg', {});
                     io.to(room).emit('connected_msg', {msg: '<br><font size="4"><b>GAME START</b></font>'});
+                    if (r_num < 6) r_num++;
+                    else r_mum = 0;
                 }
             });
 
@@ -82,13 +83,6 @@ module.exports = class Game {
                         }
                     }
                 }
-                /*
-                if (game_flag === 1) {
-                    console.log('接続が切断されました。トップ画面に戻ります。');
-                    io.to(room).emit('refresh', {});
-                    game_flag = 0;
-                }
-                */
             });
 
             // メッセージの処理

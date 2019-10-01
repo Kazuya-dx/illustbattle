@@ -6,8 +6,7 @@ joinUser(name);
 
 // 入室時の処理
 function joinUser(name) {
-    let roomId = 1;
-    socket.emit('join_user', { room: roomId, name: name});
+    socket.emit('join_user', {name: name});
 };
 
 // 部屋ごとにゲームスタート
