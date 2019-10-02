@@ -16,6 +16,7 @@ module.exports = class Battle {
         this.drawer = this.p1;
         this.turn = 0;
         this.endturn = 6;
+        this.waiting = 0;
         this.gametheme = [];
     }
 
@@ -58,11 +59,12 @@ module.exports = class Battle {
         if (this.drawer === this.p1) this.drawer = this.p2;
         else if (this.drawer === this.p2) this.drawer = this.p3;
         else this.drawer = this.p1;
-        this.turn++;
     }
 
     start(io, socket) {
         if (socket.id === this.drawer.id) {
+            // タイマースタート
+            io.to(this.room).emit('count_down', 0);
             // 現在のターン・描き手を知らせるメッセージ
             io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+(this.turn+1)+'ターン目 -----</font></div>');
             io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
@@ -72,22 +74,30 @@ module.exports = class Battle {
         }
 
         socket.on('msg_to_server', (msg) => {
-            if (msg === this.gametheme[this.turn] && socket.id !== this.drawer.id) {
+            if (msg === this.gametheme[this.turn] && socket.id !== this.drawer.id && this.waiting === 0) {
+                // 正解処理
                 io.to(this.room).emit('game_msg', '<div><b>正解！</b></div>');
                 console.log('正解！');
                 this.calcPoints(io, socket);
-                this.changeDrawer();
-                io.to(this.room).emit('next_turn_to_client', {});
+                // 待機状態にする(解答しても無効)
+                io.to(this.room).emit('set_waiting_to_client', 1);
+                setTimeout( () => {
+                    this.turn++;
+                    this.changeDrawer();
+                    io.to(this.room).emit('clear_msg', {});
+                    io.to(this.room).emit('next_turn_to_client', {});
+                    if (this.turn === this.endturn) {
+                        console.log('==========ゲーム終了==========');
+                        delete io.sockets.adapter.rooms[this.room].battle;
+                        io.to(this.room).emit('game_over_to_client', {});
+                    }
+                }, 5000);
             }
         });
 
-        socket.on('next_turn_to_server', (data) => {
-            if (this.turn === this.endturn) {
-                console.log('==========ゲーム終了==========');
-                delete io.sockets.adapter.rooms[this.room].battle;
-                io.to(this.room).emit('game_over_to_client', {});
-            }
-            if (socket.id === this.drawer.id) {
+        socket.on('next_turn_to_server', () => {
+            this.waiting = 0;
+            if (socket.id === this.drawer.id && this.turn < this.endturn) {
                 // 現在のターン・描き手を知らせるメッセージ
                 io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+(this.turn+1)+'ターン目 -----</font></div>');
                 io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
@@ -95,6 +105,30 @@ module.exports = class Battle {
                 io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
                 console.log('お題は '+this.gametheme[this.turn]+ 'です。');
             }
+        });
+
+        socket.on('time_up', () => {
+            if (socket.id === this.drawer.id) {
+                // タイムアップ処理
+                io.to(this.room).emit('game_msg', '<div><b>タイムアップ</b></div>');
+                // 待機状態にする(解答しても無効)
+                io.to(this.room).emit('set_waiting_to_client', 1);
+                setTimeout( () => {
+                    this.turn++;
+                    this.changeDrawer();
+                    io.to(this.room).emit('clear_msg', {});
+                    io.to(this.room).emit('next_turn_to_client', {});
+                    if (this.turn === this.endturn) {
+                        console.log('==========ゲーム終了==========');
+                        delete io.sockets.adapter.rooms[this.room].battle;
+                        io.to(this.room).emit('game_over_to_client', {});
+                    }
+                }, 5000);
+            }
+        });
+
+        socket.on('set_waiting_to_server', (data) => {
+            this.waiting = data;
         });
 
         socket.on('game_over_to_server', () => {

@@ -52,9 +52,12 @@ module.exports = class Game {
                 // 部屋の人数が3人になった時、ゲームスタート
                 if (io.sockets.adapter.rooms[room].length === 3) {
                     console.log('GAME START');
-                    io.to(room).emit('enter_the_game', {});
                     io.to(room).emit('clear_msg', {});
                     io.to(room).emit('connected_msg', {msg: '<br><font size="4"><b>GAME START</b></font>'});
+                    setTimeout( () => {
+                        io.to(room).emit('clear_msg', {});
+                        io.to(room).emit('enter_the_game', {}); 
+                    }, 5000);
                     if (r_num < 6) r_num++;
                     else r_mum = 0;
                 }
