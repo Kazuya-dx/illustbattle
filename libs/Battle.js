@@ -86,11 +86,6 @@ module.exports = class Battle {
                     this.changeDrawer();
                     io.to(this.room).emit('clear_msg', {});
                     io.to(this.room).emit('next_turn_to_client', {});
-                    if (this.turn === this.endturn) {
-                        console.log('==========ゲーム終了==========');
-                        delete io.sockets.adapter.rooms[this.room].battle;
-                        io.to(this.room).emit('game_over_to_client', {});
-                    }
                 }, 5000);
             }
         });
@@ -105,6 +100,16 @@ module.exports = class Battle {
                 io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
                 console.log('お題は '+this.gametheme[this.turn]+ 'です。');
             }
+            else if (socket.id === this.drawer.id && this.turn === this.endturn) {
+                io.to(this.room).emit('game_msg', '<div><font size=4>ゲーム終了</font></div>');
+                io.to(this.room).emit('game_msg', '<div>最終結果</div>');
+                io.to(this.room).emit('game_msg', '<div>p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points+'</div>');
+                setTimeout( () => {
+                    console.log('==========ゲーム終了==========');
+                    delete io.sockets.adapter.rooms[this.room].battle;
+                    io.to(this.room).emit('game_over_to_client', {});
+                }, 20000);
+            }
         });
 
         socket.on('time_up', () => {
@@ -118,11 +123,6 @@ module.exports = class Battle {
                     this.changeDrawer();
                     io.to(this.room).emit('clear_msg', {});
                     io.to(this.room).emit('next_turn_to_client', {});
-                    if (this.turn === this.endturn) {
-                        console.log('==========ゲーム終了==========');
-                        delete io.sockets.adapter.rooms[this.room].battle;
-                        io.to(this.room).emit('game_over_to_client', {});
-                    }
                 }, 5000);
             }
         });

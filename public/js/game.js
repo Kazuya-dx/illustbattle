@@ -44,6 +44,6 @@ socket.on('game_over_to_client', () => {
 
 socket.on('game_over', () => {
     setTimeout( () => {
-        window.location.href = 'http://127.0.0.1:3000/result/';
+        window.location.href = 'http://127.0.0.1:3000/';
     });
 });
