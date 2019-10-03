@@ -30,10 +30,10 @@ socket.on('count_down', (stop) => {
             socket.emit('time_up', {});
         }
     }, 1000);
-    if (stop === 1) {
-        $('.timer').text('');
+    socket.on('count_down_stop', () => {
         clearInterval(id);
-    }
+        $('.timer').text('');
+    });
     
 });
 

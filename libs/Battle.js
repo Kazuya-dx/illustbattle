@@ -1,7 +1,7 @@
 // グローバル変数
 const themes = [
     'スカイツリー', '東京タワー', 'イチロー', 'マリオ', '相撲', '闇遊戯',
-    '大乱闘スマッシュブラザーズ', 'タピオカ', '渋谷', '宇宙',
+    '織田信長', 'タピオカ', '渋谷', '宇宙', 'ボルト', 'ドラえもん',
 ];
 
 module.exports = class Battle {
@@ -64,7 +64,7 @@ module.exports = class Battle {
     start(io, socket) {
         if (socket.id === this.drawer.id) {
             // タイマースタート
-            io.to(this.room).emit('count_down', 0);
+            io.to(this.room).emit('count_down', {});
             // 現在のターン・描き手を知らせるメッセージ
             io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+(this.turn+1)+'ターン目 -----</font></div>');
             io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
@@ -77,6 +77,7 @@ module.exports = class Battle {
             if (msg === this.gametheme[this.turn] && socket.id !== this.drawer.id && this.waiting === 0) {
                 // 正解処理
                 io.to(this.room).emit('game_msg', '<div><b>正解！</b></div>');
+                io.to(this.room).emit('count_down_stop', {});
                 console.log('正解！');
                 this.calcPoints(io, socket);
                 // 待機状態にする(解答しても無効)
@@ -93,6 +94,8 @@ module.exports = class Battle {
         socket.on('next_turn_to_server', () => {
             this.waiting = 0;
             if (socket.id === this.drawer.id && this.turn < this.endturn) {
+                // タイマースタート
+                io.to(this.room).emit('count_down', 0);
                 // 現在のターン・描き手を知らせるメッセージ
                 io.to(this.room).emit('game_msg', '<br><div><font color="red">----- '+(this.turn+1)+'ターン目 -----</font></div>');
                 io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
@@ -104,11 +107,12 @@ module.exports = class Battle {
                 io.to(this.room).emit('game_msg', '<div><font size=4>ゲーム終了</font></div>');
                 io.to(this.room).emit('game_msg', '<div>最終結果</div>');
                 io.to(this.room).emit('game_msg', '<div>p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points+'</div>');
+                io.to(this.room).emit('game_msg', '<div>※ 60秒後に自動退室します</div>');
                 setTimeout( () => {
                     console.log('==========ゲーム終了==========');
                     delete io.sockets.adapter.rooms[this.room].battle;
                     io.to(this.room).emit('game_over_to_client', {});
-                }, 20000);
+                }, 60000);
             }
         });
 
@@ -116,6 +120,7 @@ module.exports = class Battle {
             if (socket.id === this.drawer.id) {
                 // タイムアップ処理
                 io.to(this.room).emit('game_msg', '<div><b>タイムアップ</b></div>');
+                io.to(this.room).emit('count_down_stop', {});
                 // 待機状態にする(解答しても無効)
                 io.to(this.room).emit('set_waiting_to_client', 1);
                 setTimeout( () => {
