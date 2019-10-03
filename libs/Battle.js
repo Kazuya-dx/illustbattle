@@ -51,7 +51,6 @@ module.exports = class Battle {
             else this.p2points += 100;
         }
         // デバッグログ
-        console.log('p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points);
         io.to(this.room).emit('game_msg', '<div>p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points+'</div>');
     }
 
@@ -70,7 +69,6 @@ module.exports = class Battle {
             io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
             // 描き手のみにお題を伝えるメッセージ
             io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
-            console.log('お題は '+this.gametheme[this.turn]+ 'です。');
         }
 
         socket.on('msg_to_server', (msg) => {
@@ -78,7 +76,6 @@ module.exports = class Battle {
                 // 正解処理
                 io.to(this.room).emit('game_msg', '<div><b>正解！</b></div>');
                 io.to(this.room).emit('count_down_stop', {});
-                console.log('正解！');
                 this.calcPoints(io, socket);
                 // 待機状態にする(解答しても無効)
                 io.to(this.room).emit('set_waiting_to_client', 1);
@@ -101,7 +98,6 @@ module.exports = class Battle {
                 io.to(this.room).emit('game_msg', '<div>'+this.drawer.name+' が絵を描く番です。</div>');
                 // 描き手のみにお題を伝えるメッセージ
                 io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
-                console.log('お題は '+this.gametheme[this.turn]+ 'です。');
             }
             else if (socket.id === this.drawer.id && this.turn === this.endturn) {
                 io.to(this.room).emit('game_msg', '<div><font size=4>ゲーム終了</font></div>');
@@ -120,7 +116,6 @@ module.exports = class Battle {
             if (socket.id === this.drawer.id) {
                 // タイムアップ処理
                 io.to(this.room).emit('game_msg', '<div><b>タイムアップ</b></div>');
-                io.to(this.room).emit('count_down_stop', {});
                 // 待機状態にする(解答しても無効)
                 io.to(this.room).emit('set_waiting_to_client', 1);
                 setTimeout( () => {

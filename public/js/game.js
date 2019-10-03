@@ -1,13 +1,13 @@
 socket.on('theme_to_drawer', (data) => {
     if (data.drawer.id === socket.id) {
-        $('.line').append('<div>お題は '+data.theme+' です。</div>');
-        $('.line').animate({ scrollTop: $('.line')[0].scrollHeight }, 'fast');
+        $('.chat').append('<div>お題は '+data.theme+' です。</div>');
+        $('.chat').animate({ scrollTop: $('.chat')[0].scrollHeight }, 'fast');
     }
 });
 
 socket.on('game_msg', (msg) => {
-    $('.line').append(msg);
-    $('.line').animate({ scrollTop: $('.line')[0].scrollHeight }, 'fast');
+    $('.chat').append(msg);
+    $('.chat').animate({ scrollTop: $('.chat')[0].scrollHeight }, 'fast');
 });
 
 socket.on('next_turn_to_client', () => {
@@ -22,13 +22,15 @@ socket.on('set_waiting_to_client', (data) => {
 // カウントダウン処理
 socket.on('count_down', (stop) => {
     let count = 60;
+    $('.timer').text('');
     let id = setInterval( () => {
-        count--;
         $('.timer').text(count);
         if (count <= 0) {
             clearInterval(id);
+            $('.timer').text('TIME UP');
             socket.emit('time_up', {});
         }
+        count--;
     }, 1000);
     socket.on('count_down_stop', () => {
         clearInterval(id);

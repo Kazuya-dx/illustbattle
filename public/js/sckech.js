@@ -12,9 +12,9 @@ var oldPos;
 canvas.width = w;
 canvas.height = h;
 c.strokeStyle = "#000000";
-c.lineWidth = 5;
-c.lineJoin = "round";
-c.lineCap = "round";
+c.chatWidth = 5;
+c.chatJoin = "round";
+c.chatCap = "round";
 
 // Canvas上の座標を計算する為の関数たち
 function scrollX(){
@@ -50,7 +50,7 @@ canvas.addEventListener("mousemove", function (event) {
     if (drawing) {
         c.beginPath();
         c.moveTo(oldPos.x, oldPos.y);
-        c.lineTo(pos.x, pos.y);
+        c.chatTo(pos.x, pos.y);
         c.stroke();
         c.closePath();
          
@@ -72,9 +72,9 @@ $("#black").click(function () {c.strokeStyle = "black";socket.emit("color", "bla
 $("#blue").click(function () {c.strokeStyle = "blue";socket.emit("color", "blue");});
 $("#red").click(function () {c.strokeStyle = "red";socket.emit("color", "red");});
 $("#green").click(function () {c.strokeStyle = "green";socket.emit("color", "green");});
-$("#small").click(function () {c.lineWidth = 5;socket.emit("lineWidth", 5);});
-$("#middle").click(function () {c.lineWidth = 10;socket.emit("lineWidth", 10);});
-$("#large").click(function () {c.lineWidth = 20;socket.emit("lineWidth", 20);});
+$("#small").click(function () {c.chatWidth = 5;socket.emit("chatWidth", 5);});
+$("#middle").click(function () {c.chatWidth = 10;socket.emit("chatWidth", 10);});
+$("#large").click(function () {c.chatWidth = 20;socket.emit("chatWidth", 20);});
     
 // socket.IOサーバーから描画情報を受け取った場合の処理
 // 受け取った情報を元に、Canvasに描画を行う
@@ -82,7 +82,7 @@ socket.on("draw", function (data) {
     console.log("on draw : " + data);
     c.beginPath();
     c.moveTo(data.before.x, data.before.y);
-    c.lineTo(data.after.x, data.after.y);
+    c.chatTo(data.after.x, data.after.y);
     c.stroke();
     c.closePath();
 });
@@ -97,9 +97,9 @@ socket.on("color", function (data) {
     
 // socket.IOサーバーから線の太さ情報を受け取った場合の処理
 // Canvasに線の太さを設定している
-socket.on("lineWidth", function (data) {
-    console.log("on lineWidth : " + data);
-    c.lineWidth = data;
+socket.on("chatWidth", function (data) {
+    console.log("on chatWidth : " + data);
+    c.chatWidth = data;
 });
 
                         

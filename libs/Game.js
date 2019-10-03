@@ -3,7 +3,6 @@ const Battle =require('./Battle.js');
 module.exports = class Game {
     start(io) {
         // グローバル変数
-        let iTimeLast = Date.now();
         let r_num = 0;
         const rooms = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 

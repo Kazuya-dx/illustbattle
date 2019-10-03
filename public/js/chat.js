@@ -17,15 +17,15 @@ $('#msgForm').keypress(function (e) {
 });
 
 socket.on('msg_to_client', (data) => {
-    $('.line').append('<div>'+data.name+': '+data.msg+'</div>');
-    $('.line').animate({ scrollTop: $('.line')[0].scrollHeight }, 'fast');
+    $('.chat').append('<div>'+data.name+': '+data.msg+'</div>');
+    $('.chat').animate({ scrollTop: $('.chat')[0].scrollHeight }, 'fast');
 });
 
 socket.on('connected_msg', (data) => {
-    $('.line').append('<div>'+data.msg+'</div>');
-    $('.line').animate({ scrollTop: $('.line')[0].scrollHeight }, 'fast');
+    $('.chat').append('<div>'+data.msg+'</div>');
+    $('.chat').animate({ scrollTop: $('.chat')[0].scrollHeight }, 'fast');
 });
 
 socket.on('clear_msg', () => {
-    $('.line').children().remove();
+    $('.chat').children().remove();
 });

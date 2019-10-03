@@ -13,7 +13,7 @@
     font-weight: bold;
 }
 
-.line {
+.chat {
     overflow: scroll;
     float: left;
     height: 200px;
