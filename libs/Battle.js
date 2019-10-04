@@ -70,6 +70,11 @@ module.exports = class Battle {
             // 描き手のみにお題を伝えるメッセージ
             io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
         }
+        else {
+            // 描き手以外のプレイターのcanvasを無効化
+            socket.emit('lock_canvas', {});
+            console.log('キャンバスがロックされました');
+        }
 
         socket.on('msg_to_server', (msg) => {
             if (msg === this.gametheme[this.turn] && socket.id !== this.drawer.id && this.waiting === 0) {
@@ -79,10 +84,12 @@ module.exports = class Battle {
                 this.calcPoints(io, socket);
                 // 待機状態にする(解答しても無効)
                 io.to(this.room).emit('set_waiting_to_client', 1);
+                io.to(this.room).emit('lock_canvas', {});
                 setTimeout( () => {
                     this.turn++;
                     this.changeDrawer();
                     io.to(this.room).emit('clear_msg', {});
+                    io.to(this.room).emit('clear_canvas', {});
                     io.to(this.room).emit('next_turn_to_client', {});
                 }, 5000);
             }
@@ -90,6 +97,7 @@ module.exports = class Battle {
 
         socket.on('next_turn_to_server', () => {
             this.waiting = 0;
+            io.to(this.room).emit('unlock_canvas', {});
             if (socket.id === this.drawer.id && this.turn < this.endturn) {
                 // タイマースタート
                 io.to(this.room).emit('count_down', 0);
@@ -110,6 +118,12 @@ module.exports = class Battle {
                     io.to(this.room).emit('game_over_to_client', {});
                 }, 60000);
             }
+            else {
+                // 描き手以外のプレイターのcanvasを無効化
+                setTimeout( () => {
+                    socket.emit('lock_canvas', {});
+                }, 100);
+            }
         });
 
         socket.on('time_up', () => {
@@ -118,10 +132,12 @@ module.exports = class Battle {
                 io.to(this.room).emit('game_msg', '<div><b>タイムアップ</b></div>');
                 // 待機状態にする(解答しても無効)
                 io.to(this.room).emit('set_waiting_to_client', 1);
+                io.to(this.room).emit('lock_canvas', {});
                 setTimeout( () => {
                     this.turn++;
                     this.changeDrawer();
                     io.to(this.room).emit('clear_msg', {});
+                    io.to(this.room).emit('clear_canvas', {});
                     io.to(this.room).emit('next_turn_to_client', {});
                 }, 5000);
             }

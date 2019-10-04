@@ -24,7 +24,6 @@ module.exports = class Game {
                 }
 
                 io.sockets.adapter.rooms[room].battle.start(io, socket);
-                console.log(io.sockets.adapter.rooms[room]);
             });
 
             // 入室時の処理
@@ -55,6 +54,7 @@ module.exports = class Game {
                     io.to(room).emit('connected_msg', {msg: '<br><font size="4"><b>GAME START</b></font>'});
                     setTimeout( () => {
                         io.to(room).emit('clear_msg', {});
+                        io.to(room).emit('clear_canvas', {});
                         io.to(room).emit('enter_the_game', {}); 
                     }, 5000);
                     if (r_num < 6) r_num++;
@@ -91,6 +91,20 @@ module.exports = class Game {
             socket.on('msg_to_server', (msg) => {
                 io.to(room).emit('msg_to_client', {msg: msg, name: client.name});
                 console.log('%s: %s', client.name, msg);
+            });
+
+            // キャンバスの処理
+            
+            socket.on("draw", (data) => {
+                socket.to(room).emit("draw", data);
+            });
+
+            socket.on("color", (color) => {
+                socket.to(room).emit("color", color);
+            });
+
+            socket.on("lineWidth", (width) => {
+                socket.to(room).emit("lineWidth", width);
             });
         });
     }

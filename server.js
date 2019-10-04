@@ -9,7 +9,7 @@ const Game = require('./libs/Game.js');
 // オブジェクト
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {origins:'localhost:* 127.0.0.1:3000'});
 
 // 定数
 const PORT_NO = process.env.PORT || 3000;

@@ -1,3 +1,11 @@
+socket.on('lock_canvas', () => {
+    $('.canvas').css('pointer-events','none');
+});
+
+socket.on('unlock_canvas', () => {
+    $('.canvas').css('pointer-events','auto');
+});
+
 socket.on('theme_to_drawer', (data) => {
     if (data.drawer.id === socket.id) {
         $('.chat').append('<div>お題は '+data.theme+' です。</div>');
