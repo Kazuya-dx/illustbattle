@@ -3,7 +3,7 @@ window.addEventListener("load", function () {
     // Canvas描画に必要な変数を定義する
     var canvas = document.getElementById("myCanvas");
     var c = canvas.getContext("2d");
-    var w = 450;
+    var w = 750;
     var h = 400;
     var drawing = false;
     var oldPos;
@@ -72,9 +72,11 @@ window.addEventListener("load", function () {
     $("#blue").click(function () {c.strokeStyle = "blue";socket.emit("color", "blue");});
     $("#red").click(function () {c.strokeStyle = "red";socket.emit("color", "red");});
     $("#green").click(function () {c.strokeStyle = "green";socket.emit("color", "green");});
+    $('#white').click(function() {c.strokeStyle = "white";socket.emit('color', 'color');});
     $("#small").click(function () {c.lineWidth = 5;socket.emit("lineWidth", 5);});
     $("#middle").click(function () {c.lineWidth = 10;socket.emit("lineWidth", 10);});
     $("#large").click(function () {c.lineWidth = 20;socket.emit("lineWidth", 20);});
+    $('#clear').click(function () {socket.emit('clear_canvas', {});});
         
     // socket.IOサーバーから描画情報を受け取った場合の処理
     // 受け取った情報を元に、Canvasに描画を行う

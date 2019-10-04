@@ -108,6 +108,7 @@ module.exports = class Battle {
                 io.to(this.room).emit('theme_to_drawer', {theme: this.gametheme[this.turn], drawer: this.drawer});
             }
             else if (socket.id === this.drawer.id && this.turn === this.endturn) {
+                io.to(this.room).emit('unlock_canvas', {});
                 io.to(this.room).emit('game_msg', '<div><font size=4>ゲーム終了</font></div>');
                 io.to(this.room).emit('game_msg', '<div>最終結果</div>');
                 io.to(this.room).emit('game_msg', '<div>p1points:'+this.p1points+' p2points:'+this.p2points+' p3points:'+this.p3points+'</div>');
@@ -120,9 +121,11 @@ module.exports = class Battle {
             }
             else {
                 // 描き手以外のプレイターのcanvasを無効化
-                setTimeout( () => {
-                    socket.emit('lock_canvas', {});
-                }, 100);
+                if (this.turn !== this.endturn) {
+                    setTimeout( () => {
+                        socket.emit('lock_canvas', {});
+                    }, 100);
+                }
             }
         });
 

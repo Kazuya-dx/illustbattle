@@ -94,17 +94,20 @@ module.exports = class Game {
             });
 
             // キャンバスの処理
-            
-            socket.on("draw", (data) => {
-                socket.to(room).emit("draw", data);
+            socket.on('draw', (data) => {
+                socket.to(room).emit('draw', data);
             });
 
-            socket.on("color", (color) => {
-                socket.to(room).emit("color", color);
+            socket.on('color', (color) => {
+                socket.to(room).emit('color', color);
             });
 
-            socket.on("lineWidth", (width) => {
-                socket.to(room).emit("lineWidth", width);
+            socket.on('lineWidth', (width) => {
+                socket.to(room).emit('lineWidth', width);
+            });
+
+            socket.on('clear_canvas', () => {
+                io.to(room).emit('clear_canvas', {});
             });
         });
     }
